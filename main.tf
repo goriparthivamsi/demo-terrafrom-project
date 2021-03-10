@@ -12,7 +12,6 @@ provider "aws" {
   access_key = var.access_key
   secret_key = var.secret_key
   region = var.region
-
 }
 #creating a VPC
 resource "aws_vpc" "myapp-vpc" {
@@ -114,15 +113,10 @@ resource "aws_instance" "myapp-server" {
     Name = "${var.env_prefix}-app-server"
   }
   associate_public_ip_address = true
-  user_data = <<EOF
-               #!/bin/bash
-                sudo yum update -y && sudo yum install -y docker
-                sudo systemctl start docker
-                sudo usermod -aG docker ec2-user
-                newgrp docker
-                docker run -p 8080:80 nginx:latest
-              EOF
+  user_data = file("docker.sh")
 }
+
+
 output "public-ip" {
   value = aws_instance.myapp-server.public_ip
 }
